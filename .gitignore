@@ -1,0 +1,6 @@
+# Variables file
+*.tfvars
+
+# Local terraform directory
+.terraform
+.terraform/*
