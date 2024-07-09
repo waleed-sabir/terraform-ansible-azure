@@ -253,6 +253,15 @@ variable "disk-size" {
   description = "Size of the disk in GB"
 }
 
+# Provisioner config
+variable "private-key-location" {
+  description = "Path of the private key"
+}
+
+variable "ansible-user" {
+  description = "Name of the Ansible user"
+}
+
 resource "azurerm_linux_virtual_machine" "virtual_machine" {
   name                = var.vm-name
   resource_group_name = azurerm_resource_group.resource_group.name
@@ -279,6 +288,10 @@ resource "azurerm_linux_virtual_machine" "virtual_machine" {
     offer     = "0001-com-ubuntu-server-jammy"
     sku       = "22_04-lts-gen2"
     version   = "latest"
+  }
+
+  provisioner "local-exec" {
+    command = "ansible-playbook --inventory ${self.public_ip_address}, --private-key ${var.private-key-location} --user ${var.ansible-user} playbook.yaml"
   }
 }
 
