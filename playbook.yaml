@@ -1,4 +1,17 @@
 ---
+- name: Ensure SSH connection is open
+  hosts: all
+  tasks:
+    - name: Ensure SSH port is open
+      wait_for:
+        port: 22
+        delay: 10
+        timeout: 100
+        host: "{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}"
+        search_regex: OpenSSH
+      vars:
+        ansible_connection: local
+
 - name: Configure and install nginx server
   hosts: all
   become: true
