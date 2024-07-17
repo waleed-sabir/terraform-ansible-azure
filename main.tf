@@ -20,33 +20,12 @@ provider "azurerm" {
 }
 
 # Resource group config
-
-variable "rg-location" {
-  description = "Location/Region of the resource group"
-  type = string
-}
-
-variable "rg-name" {
-  description = "Name of the resource group"
-  type = string
-}
-
 resource "azurerm_resource_group" "resource_group" {
   name     = var.rg-name
   location = var.rg-location
 }
 
 # Virtual network config
-
-variable "vnet-name" {
-  description = "Name of the virtual network"
-  type = string
-}
-
-variable "vnet-cidr-block" {
-  description = "CIDR block for virtual network"
-}
-
 resource "azurerm_virtual_network" "virtual_network" {
   name                = var.vnet-name
   address_space       = var.vnet-cidr-block
@@ -55,16 +34,6 @@ resource "azurerm_virtual_network" "virtual_network" {
 }
 
 # Subnet config
-
-variable "subnet1-name" {
-  description = "Name of the subnet"
-  type = string
-}
-
-variable "subnet1-cidr-block" {
-  description = "CIDR block of the subnet"
-}
-
 resource "azurerm_subnet" "subnet1" {
   name                 = var.subnet1-name
   resource_group_name  = azurerm_resource_group.resource_group.name
@@ -73,16 +42,6 @@ resource "azurerm_subnet" "subnet1" {
 }
 
 # Network Interface config
-
-variable "nic-name" {
-  description = "Name of the network interface"
-  type = string
-}
-
-variable "nic-ip-config-name" {
-  description = "Name of IP configuration of the network interface"
-}
-
 resource "azurerm_network_interface" "network_interface" {
   name                = var.nic-name
   location            = azurerm_resource_group.resource_group.location
@@ -97,11 +56,6 @@ resource "azurerm_network_interface" "network_interface" {
 }
 
 # Public IP config
-
-variable "public-ip-name" {
-  description = "Name of the public IP"
-  type = string
-}
 resource "azurerm_public_ip" "public_ip" {
   name                = var.public-ip-name
   location            = azurerm_resource_group.resource_group.location
@@ -110,80 +64,12 @@ resource "azurerm_public_ip" "public_ip" {
 }
 
 # Network Security Group (NSG) config
-
-variable "nsg-name" {
-  description = "Name of the network security group"
-  type = string
-}
-
-# Rule 1 config
-
-variable "security-rule-name" {
-  description = "Name of the security rule"
-  type = string
-}
-
-variable "security-rule-priority" {
-  description = "Priority value of the security rule"
-  type = string
-}
-
-variable "security-rule-direction" {
-  description = "Direction of the security rule"
-  type = string
-}
-
-variable "security-rule-access" {
-  description = "Access type of the security rule"
-  type = string
-}
-
-variable "security-rule-protocol" {
-  description = "Protocol of the security rule"
-  type = string
-}
-
-variable "security-rule-source-port-range" {
-  description = "Source port range of the security rule"
-  type = string
-}
-
-variable "security-rule-destination-port-range" {
-  description = "Destination port range of the security rule"
-  type = string
-}
-
-variable "security-rule-source-addr-prefix" {
-  description = "Source address prefix of the security rule"
-  type = string
-}
-
-variable "security-rule-destination-addr-prefix" {
-  description = "Destination address prefix of the security rule"
-  type = string
-}
-
-# Rule 2 config
-
-variable "security-rule2-name" {
-  description = "Name of the security rule 2"
-}
-
-variable "security-rule2-priority" {
-  description = "Priority value of the security rule 2"
-}
-
-variable "security-rule2-destination-port-range" {
-  description = "Destination port range of the security rule 2"
-}
-
-
-
 resource "azurerm_network_security_group" "network_security_group" {
   name                = var.nsg-name
   location            = azurerm_resource_group.resource_group.location
   resource_group_name = azurerm_resource_group.resource_group.name
 
+# Rule 1 config
   security_rule {
     name                       = var.security-rule-name
     priority                   = var.security-rule-priority
@@ -196,6 +82,7 @@ resource "azurerm_network_security_group" "network_security_group" {
     destination_address_prefix = var.security-rule-destination-addr-prefix
   }
   
+# Rule 2 config
   security_rule {
     name                       = var.security-rule2-name
     priority                   = var.security-rule2-priority
@@ -216,52 +103,6 @@ resource "azurerm_network_interface_security_group_association" "example" {
 
 
 # Virtual Machine (VM) config
-
-variable "vm-name" {
-  description = "Name of the virtual machine"
-  type = string  
-}
-
-variable "vm-size" {
-  description = "Size of the virtual machine"
-  type = string  
-}
-
-variable "admin-user" {
-  description = "Name of the admin user"
-  type = string
-}
-
-variable "ssh-adminuser" {
-  description = "Name of the SSH admin user"
-  type = string
-}
-
-variable "public-key-path" {
-  description = "Path to the public key"
-}
-
-variable "disk-caching" {
-  description = "Type of disk caching"
-}
-
-variable "storage-account-type" {
-  description = "Type of the storage account"
-}
-
-variable "disk-size" {
-  description = "Size of the disk in GB"
-}
-
-# Provisioner config
-variable "private-key-location" {
-  description = "Path of the private key"
-}
-
-variable "ansible-user" {
-  description = "Name of the Ansible user"
-}
-
 resource "azurerm_linux_virtual_machine" "virtual_machine" {
   name                = var.vm-name
   resource_group_name = azurerm_resource_group.resource_group.name
@@ -290,6 +131,7 @@ resource "azurerm_linux_virtual_machine" "virtual_machine" {
     version   = "latest"
   }
 
+# Provisioner config
   provisioner "local-exec" {
     command = "ansible-playbook --inventory ${self.public_ip_address}, --private-key ${var.private-key-location} --user ${var.ansible-user} playbook.yaml"
   }
